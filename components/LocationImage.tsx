@@ -104,7 +104,7 @@ export default function LocationImage({ image, onImageChange }: LocationImagePro
           onDragLeave={handleDragLeave}
           className={`
             h-[200px] cursor-pointer transition-all
-            flex flex-col items-center justify-center
+            flex flex-col items-center justify-start pt-10 pb-28
             bg-gradient-to-b from-neutral-900 to-neutral-950
             ${isDragging ? 'from-neutral-800 to-neutral-900' : ''}
           `}
@@ -129,7 +129,7 @@ export default function LocationImage({ image, onImageChange }: LocationImagePro
             />
           </svg>
           <p className="text-neutral-500 text-sm">
-            {isDragging ? 'Drop image' : 'Add location image'}
+            {isDragging ? 'Drop image' : 'Click to add image'}
           </p>
         </div>
       )}
