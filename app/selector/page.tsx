@@ -23,6 +23,7 @@ export default function SelectorPage() {
     removeCharacterFromScene,
     nextLook,
     prevLook,
+    setCharacterLook,
   } = useApp();
 
   if (!isReady) return null;
@@ -130,6 +131,10 @@ export default function SelectorPage() {
   const handlePresenterPrevLook = useCallback((sceneId: string, characterId: string) => {
     prevLook(sceneId, characterId);
   }, [prevLook]);
+
+  const handlePresenterSetLook = useCallback((sceneId: string, characterId: string, lookIndex: number) => {
+    setCharacterLook(sceneId, characterId, lookIndex);
+  }, [setCharacterLook]);
 
   const handleExportPdf = async (sortOrder: PdfSortOrder) => {
     setShowExportMenu(false);
@@ -302,6 +307,7 @@ export default function SelectorPage() {
           onUpdateNotes={handlePresenterUpdateNotes}
           onNextLook={handlePresenterNextLook}
           onPrevLook={handlePresenterPrevLook}
+          onSetLook={handlePresenterSetLook}
         />
       )}
     </div>

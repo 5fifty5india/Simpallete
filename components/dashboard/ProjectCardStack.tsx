@@ -118,8 +118,8 @@ export default function ProjectCardStack({ projects, onSelectProject }: ProjectC
 
   return (
     <div className="flex flex-col items-center gap-6">
-      {/* Search bar + view toggle */}
-      <div className="w-full max-w-[680px] flex items-center gap-3">
+      {/* Search bar + view toggle — z-10 so stack tail goes under it */}
+      <div className="relative z-10 w-full max-w-[680px] flex items-center gap-3">
         <div className="relative flex-1">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -175,7 +175,7 @@ export default function ProjectCardStack({ projects, onSelectProject }: ProjectC
         /* ── Stack View ── */
         <>
           <div
-            className="relative w-[340px] sm:w-[560px] lg:w-[680px] h-[260px] sm:h-[400px] lg:h-[480px] mt-8"
+            className="relative w-[340px] sm:w-[560px] lg:w-[680px] h-[260px] sm:h-[400px] lg:h-[480px] mt-12"
             onWheel={handleWheel}
           >
             <AnimatePresence>

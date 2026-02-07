@@ -10,6 +10,7 @@ interface PresenterModeProps {
   onUpdateNotes: (sceneId: string, notes: string) => void;
   onNextLook: (sceneId: string, characterId: string) => void;
   onPrevLook: (sceneId: string, characterId: string) => void;
+  onSetLook: (sceneId: string, characterId: string, lookIndex: number) => void;
 }
 
 export default function PresenterMode({
@@ -19,10 +20,12 @@ export default function PresenterMode({
   onUpdateNotes,
   onNextLook,
   onPrevLook,
+  onSetLook,
 }: PresenterModeProps) {
   const [currentIndex, setCurrentIndex] = useState(initialSceneIndex);
   const [showNotes, setShowNotes] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [carouselCharacter, setCarouselCharacter] = useState<SceneCharacter | null>(null);
   const notesRef = useRef<HTMLTextAreaElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
 
@@ -64,6 +67,12 @@ export default function PresenterMode({
         return;
       }
 
+      // Close carousel on Escape
+      if (e.key === 'Escape' && carouselCharacter) {
+        setCarouselCharacter(null);
+        return;
+      }
+
       if (e.key === 'ArrowLeft') {
         setCurrentIndex((i) => Math.max(0, i - 1));
       } else if (e.key === 'ArrowRight') {
@@ -79,7 +88,18 @@ export default function PresenterMode({
       document.removeEventListener('keydown', handleKey);
       document.body.style.overflow = 'unset';
     };
-  }, [scenes.length, currentIndex, onExit]);
+  }, [scenes.length, currentIndex, onExit, carouselCharacter]);
+
+  const handleOpenCarousel = useCallback((character: SceneCharacter) => {
+    if (character.looks && character.looks.length > 1) {
+      setCarouselCharacter(character);
+    }
+  }, []);
+
+  const handleSelectLook = useCallback((sceneId: string, characterId: string, lookIndex: number) => {
+    onSetLook(sceneId, characterId, lookIndex);
+    setCarouselCharacter(null);
+  }, [onSetLook]);
 
   if (!scene) return null;
 
@@ -108,9 +128,9 @@ export default function PresenterMode({
           <div className="text-center">
             <p className="text-white/90 text-sm font-medium">
               Scene {scene.sceneNumber || '\u2014'}
-              {scene.scriptLocation && <span className="text-white/40"> \u2014 </span>}
+              {scene.scriptLocation && <span className="text-white/40"> &mdash; </span>}
               {scene.scriptLocation && <span className="text-white/60">{scene.scriptLocation}</span>}
-              {scene.timeDay && <span className="text-white/40"> \u2014 </span>}
+              {scene.timeDay && <span className="text-white/40"> &mdash; </span>}
               {scene.timeDay && <span className="text-white/50">{scene.timeDay}</span>}
             </p>
           </div>
@@ -137,41 +157,42 @@ export default function PresenterMode({
       </div>
 
       {/* Main content — scrollable */}
-      <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 py-16">
-        {/* Location image */}
+      <div className="flex-1 overflow-y-auto pt-14">
+        {/* Location image — full width with gradient fade */}
         {hasLocation ? (
-          <div className="w-full max-w-4xl mb-6">
+          <div className="relative w-full">
             <img
               src={scene.locationImage}
               alt={scene.scriptLocation || 'Location'}
-              className="w-full max-h-[45vh] object-contain rounded-lg shadow-2xl"
+              className="w-full h-[40vh] min-h-[280px] object-cover"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent" />
           </div>
         ) : (
-          <div className="w-full max-w-4xl mb-6 h-[120px] flex items-center justify-center rounded-lg bg-white/[0.02] border border-white/5">
+          <div className="w-full h-[200px] flex items-center justify-center bg-gradient-to-b from-neutral-900 to-neutral-950">
             <p className="text-neutral-700 text-sm">No location image</p>
           </div>
         )}
 
-        {/* Description */}
+        {/* Description — floats above gradient */}
         {scene.description && (
-          <p className="text-neutral-400 text-sm italic text-center max-w-2xl mb-8 leading-relaxed">
+          <p className="relative z-10 text-neutral-400 text-sm italic text-center max-w-2xl mx-auto px-6 -mt-8 mb-4 leading-relaxed">
             &ldquo;{scene.description}&rdquo;
           </p>
         )}
 
-        {/* Character looks */}
+        {/* Character grid — overlaps location image */}
         {scene.characters.length > 0 ? (
-          <div className="flex flex-wrap justify-center gap-5">
-            {scene.characters.map((char) => (
-              <PresenterCharacterCard
-                key={char.id}
-                character={char}
-                sceneId={scene.id}
-                onNextLook={onNextLook}
-                onPrevLook={onPrevLook}
-              />
-            ))}
+          <div className="relative -mt-20 z-10 px-6 sm:px-8 lg:px-12 pb-32 max-w-6xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {scene.characters.map((char) => (
+                <PresenterCharacterCard
+                  key={char.id}
+                  character={char}
+                  onOpenCarousel={handleOpenCarousel}
+                />
+              ))}
+            </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-20">
@@ -217,6 +238,16 @@ export default function PresenterMode({
           </p>
         </div>
       </div>
+
+      {/* Look Carousel Popup */}
+      {carouselCharacter && (
+        <LookCarousel
+          character={carouselCharacter}
+          sceneId={scene.id}
+          onSelectLook={handleSelectLook}
+          onClose={() => setCarouselCharacter(null)}
+        />
+      )}
     </div>
   );
 }
@@ -225,25 +256,21 @@ export default function PresenterMode({
 
 function PresenterCharacterCard({
   character,
-  sceneId,
-  onNextLook,
-  onPrevLook,
+  onOpenCarousel,
 }: {
   character: SceneCharacter;
-  sceneId: string;
-  onNextLook: (sceneId: string, characterId: string) => void;
-  onPrevLook: (sceneId: string, characterId: string) => void;
+  onOpenCarousel: (character: SceneCharacter) => void;
 }) {
   const hasLooks = character.looks && character.looks.length > 0;
   const currentLook = hasLooks ? character.looks[character.selectedLookIndex] : null;
   const hasMultiple = hasLooks && character.looks.length > 1;
 
   return (
-    <div className="flex flex-col items-center w-36">
+    <div className="flex flex-col">
       {/* Card */}
       <div
-        className="relative w-36 h-52 rounded-xl overflow-hidden shadow-lg group cursor-pointer"
-        onClick={() => hasMultiple && onNextLook(sceneId, character.id)}
+        className={`relative aspect-[2/3] rounded-xl overflow-hidden shadow-lg group ${hasMultiple ? 'cursor-pointer' : ''}`}
+        onClick={() => hasMultiple && onOpenCarousel(character)}
       >
         {currentLook ? (
           <img
@@ -276,31 +303,124 @@ function PresenterCharacterCard({
           </div>
         )}
 
-        {/* Navigation arrows (on hover, if multiple looks) */}
+        {/* Tap hint for multiple looks */}
         {hasMultiple && (
-          <div className="absolute inset-0 flex items-center justify-between px-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={(e) => { e.stopPropagation(); onPrevLook(sceneId, character.id); }}
-              className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm text-white/80 hover:text-white flex items-center justify-center"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onNextLook(sceneId, character.id); }}
-              className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm text-white/80 hover:text-white flex items-center justify-center"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-black/50 backdrop-blur-sm rounded-lg px-3 py-1.5">
+              <p className="text-white/90 text-xs font-medium">Change Look</p>
+            </div>
           </div>
         )}
       </div>
 
       {/* Name */}
-      <p className="text-neutral-300 text-sm font-medium mt-2 text-center truncate w-full">{character.name}</p>
+      <p className="text-neutral-300 text-sm font-medium mt-2 text-center truncate px-1">{character.name}</p>
+    </div>
+  );
+}
+
+// ── Look Carousel Popup ─────────────────────────────────────
+
+function LookCarousel({
+  character,
+  sceneId,
+  onSelectLook,
+  onClose,
+}: {
+  character: SceneCharacter;
+  sceneId: string;
+  onSelectLook: (sceneId: string, characterId: string, lookIndex: number) => void;
+  onClose: () => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState(character.selectedLookIndex);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-5xl px-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Character name */}
+        <h3 className="text-white text-lg font-semibold text-center mb-6">
+          {character.name}
+          <span className="text-neutral-500 text-sm font-normal ml-2">
+            {character.looks.length} look{character.looks.length !== 1 ? 's' : ''}
+          </span>
+        </h3>
+
+        {/* Carousel row */}
+        <div className="flex items-center gap-2 h-[380px] sm:h-[420px]">
+          {character.looks.map((look, index) => {
+            const isExpanded = index === expandedIndex;
+            const isSelected = index === character.selectedLookIndex;
+
+            return (
+              <div
+                key={look.id}
+                className="relative h-full rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-in-out"
+                style={{
+                  flex: isExpanded ? '3 1 0%' : '0.5 1 0%',
+                  minWidth: isExpanded ? undefined : '48px',
+                }}
+                onMouseEnter={() => setExpandedIndex(index)}
+                onClick={() => {
+                  if (isExpanded) {
+                    onSelectLook(sceneId, character.id, index);
+                  } else {
+                    setExpandedIndex(index);
+                  }
+                }}
+              >
+                <img
+                  src={look.image}
+                  alt={look.name}
+                  className="w-full h-full object-cover"
+                />
+
+                {/* Gradient at bottom */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+                {/* Selected checkmark */}
+                {isSelected && (
+                  <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-lg">
+                    <svg className="w-3.5 h-3.5 text-neutral-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+
+                {/* Look info — visible when expanded */}
+                <div className={`absolute bottom-0 left-0 right-0 p-4 transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
+                  <p className="text-white font-medium text-sm">{look.name}</p>
+                  {look.description && (
+                    <p className="text-white/60 text-xs mt-1 line-clamp-2">{look.description}</p>
+                  )}
+                  {isExpanded && (
+                    <p className="text-white/40 text-[10px] mt-2">
+                      {isSelected ? 'Currently selected' : 'Click to select'}
+                    </p>
+                  )}
+                </div>
+
+                {/* Collapsed index label */}
+                {!isExpanded && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-white/60 text-xs font-medium">{index + 1}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Hint */}
+        <p className="text-neutral-600 text-xs text-center mt-4">
+          Hover to preview &middot; Click to select &middot; Esc to cancel
+        </p>
+      </div>
     </div>
   );
 }
