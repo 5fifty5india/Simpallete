@@ -94,7 +94,8 @@ function drawSceneCard(
   w: number
 ): number {
   const pad = 5;
-  const cardH = 40;
+  const hasNotes = !!scene.presenterNotes;
+  const cardH = hasNotes ? 52 : 40;
 
   // Card background
   pdf.setFillColor(23, 23, 23);
@@ -118,7 +119,7 @@ function drawSceneCard(
     { label: 'Scene Number', value: scene.sceneNumber || '\u2014' },
     { label: 'Location', value: scene.scriptLocation || '\u2014' },
     { label: 'Time of Day', value: scene.timeDay || '\u2014' },
-    { label: 'Shoot Day', value: scene.shootDay || '\u2014' },
+    { label: 'Shoot Day', value: scene.shootDay != null ? `Day ${scene.shootDay}` : '\u2014' },
   ];
 
   fields.forEach((field, idx) => {
@@ -163,6 +164,28 @@ function drawSceneCard(
   const desc = scene.description || '\u2014';
   const truncDesc = desc.length > 140 ? desc.substring(0, 139) + '\u2026' : desc;
   pdf.text(truncDesc, x + pad + 2, descY + 7);
+
+  // Presenter Notes (if any)
+  if (hasNotes) {
+    const notesY = descY + 12;
+    pdf.setTextColor(163, 163, 163);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(6.5);
+    pdf.text('Notes', x + pad, notesY);
+
+    const notesBoxW = w - 2 * pad;
+    pdf.setFillColor(38, 38, 38);
+    pdf.roundedRect(x + pad, notesY + 1.5, notesBoxW, 9, 1, 1, 'F');
+    pdf.setDrawColor(64, 64, 64);
+    pdf.roundedRect(x + pad, notesY + 1.5, notesBoxW, 9, 1, 1, 'S');
+
+    pdf.setTextColor(212, 212, 212);
+    pdf.setFontSize(7);
+    pdf.setFont('helvetica', 'italic');
+    const notes = scene.presenterNotes!;
+    const truncNotes = notes.length > 140 ? notes.substring(0, 139) + '\u2026' : notes;
+    pdf.text(truncNotes, x + pad + 2, notesY + 7);
+  }
 
   return y + cardH + 4;
 }
@@ -375,9 +398,11 @@ function drawCharacterGrid(
 
 // ── Main Export Function ───────────────────────────────────────
 
-export async function exportScenesToPdf(scenes: Scene[]): Promise<void> {
+export type PdfSortOrder = 'scene-number' | 'shoot-day';
+
+export async function exportScenesToPdf(scenes: Scene[], sortOrder: PdfSortOrder = 'scene-number'): Promise<void> {
   // Filter scenes that have any content
-  const scenesToExport = scenes.filter(
+  let scenesToExport = scenes.filter(
     (s) =>
       s.characters.length > 0 ||
       s.locationImage ||
@@ -388,6 +413,23 @@ export async function exportScenesToPdf(scenes: Scene[]): Promise<void> {
   if (scenesToExport.length === 0) {
     alert('No scenes to export. Add some content first!');
     return;
+  }
+
+  // Sort based on chosen order
+  if (sortOrder === 'shoot-day') {
+    scenesToExport = [...scenesToExport].sort((a, b) => {
+      if (a.shootDay == null && b.shootDay == null) return 0;
+      if (a.shootDay == null) return 1;
+      if (b.shootDay == null) return -1;
+      return a.shootDay - b.shootDay;
+    });
+  } else {
+    scenesToExport = [...scenesToExport].sort((a, b) => {
+      const numA = parseFloat(a.sceneNumber) || 0;
+      const numB = parseFloat(b.sceneNumber) || 0;
+      if (numA !== numB) return numA - numB;
+      return a.sceneNumber.localeCompare(b.sceneNumber);
+    });
   }
 
   // Preload all images

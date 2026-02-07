@@ -5,7 +5,7 @@ import Button from './ui/Button';
 
 interface SceneHeaderProps {
   scene: Scene;
-  onUpdate: (field: keyof Scene, value: string) => void;
+  onUpdate: (field: keyof Scene, value: string | number | null) => void;
   onSave: () => void;
   isSaving?: boolean;
 }
@@ -71,10 +71,11 @@ export default function SceneHeader({ scene, onUpdate, onSave, isSaving }: Scene
             Shoot Day
           </label>
           <input
-            type="text"
-            value={scene.shootDay}
-            onChange={(e) => onUpdate('shootDay', e.target.value)}
-            placeholder="Day 1"
+            type="number"
+            min={1}
+            value={scene.shootDay ?? ''}
+            onChange={(e) => onUpdate('shootDay', e.target.value ? Number(e.target.value) : null)}
+            placeholder="1"
             className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 focus:ring-2 focus:ring-white/20 focus:border-neutral-600 transition-colors"
           />
         </div>

@@ -89,7 +89,7 @@ export const mockScenes: Scene[] = [
     sceneNumber: '1',
     scriptLocation: 'INT. COFFEE SHOP',
     timeDay: 'DAY',
-    shootDay: 'Day 1',
+    shootDay: 1,
     description: 'John and Sarah meet for the first time at a busy downtown coffee shop.',
     locationImage: LOCATION_IMAGES.coffeeShop,
     characters: [
@@ -103,7 +103,7 @@ export const mockScenes: Scene[] = [
     sceneNumber: '2',
     scriptLocation: 'EXT. ROOFTOP BAR',
     timeDay: 'NIGHT',
-    shootDay: 'Day 2',
+    shootDay: 2,
     description: 'The group reunites at a trendy rooftop bar overlooking the city skyline.',
     locationImage: LOCATION_IMAGES.rooftop,
     characters: [
@@ -118,7 +118,7 @@ export const mockScenes: Scene[] = [
     sceneNumber: '3',
     scriptLocation: 'INT. SARAH\'S APARTMENT',
     timeDay: 'DAWN',
-    shootDay: 'Day 3',
+    shootDay: 3,
     description: 'The morning after. Sarah discovers a handwritten note left on the kitchen counter.',
     locationImage: LOCATION_IMAGES.apartment,
     characters: [
@@ -133,6 +133,104 @@ export const mockProject: Project = {
   name: 'The Morning After',
   description: 'A romantic drama set in modern-day New York',
   projectType: 'film',
+  episodes: [],
+  teamMembers: [],
   characters: mockCharacters,
   scenes: mockScenes,
 };
+
+// ── Multi-project demo data ──────────────────────────────────
+
+export const mockProjects: Project[] = [
+  {
+    id: 'proj-demo-1',
+    name: 'The Morning After',
+    description: 'A romantic drama set in modern-day New York',
+    projectType: 'film',
+    episodes: [],
+    teamMembers: [
+      { id: 'tm-1', name: 'Alex Rivera', role: 'Director', email: 'alex@example.com' },
+      { id: 'tm-2', name: 'Priya Sharma', role: 'Costume Designer', email: 'priya@example.com' },
+      { id: 'tm-3', name: 'Marcus Lee', role: 'DOP', email: 'marcus@example.com' },
+      { id: 'tm-4', name: 'Sofia Chen', role: 'Producer', email: 'sofia@example.com' },
+      { id: 'tm-5', name: 'James Okafor', role: '1st AD', email: 'james@example.com' },
+    ],
+    characters: mockCharacters,
+    scenes: mockScenes,
+  },
+  {
+    id: 'proj-demo-2',
+    name: 'Crown & Thorns',
+    description: 'A period drama following the fall of a fictional European dynasty',
+    projectType: 'series',
+    episodes: [
+      { id: 'ep-ct-1', episodeNumber: 1, title: 'The Coronation' },
+      { id: 'ep-ct-2', episodeNumber: 2, title: 'Whispers in Court' },
+      { id: 'ep-ct-3', episodeNumber: 3, title: 'The Betrayal' },
+    ],
+    teamMembers: [
+      { id: 'tm-ct-1', name: 'Helena Voss', role: 'Director' },
+      { id: 'tm-ct-2', name: 'Tobias Grant', role: 'Costume Designer' },
+      { id: 'tm-ct-3', name: 'Yuki Tanaka', role: 'Producer' },
+      { id: 'tm-ct-4', name: 'Liam O\'Brien', role: 'Production Designer' },
+    ],
+    characters: [
+      { id: 'char-ct-1', name: 'Queen Elara', gender: 'Female', castType: 'A', looks: [] },
+      { id: 'char-ct-2', name: 'Prince Aldric', gender: 'Male', castType: 'A', looks: [] },
+      { id: 'char-ct-3', name: 'Lady Morwen', gender: 'Female', castType: 'B', looks: [] },
+      { id: 'char-ct-4', name: 'Captain Hale', gender: 'Male', castType: 'B', looks: [] },
+      { id: 'char-ct-5', name: 'The Cardinal', gender: 'Male', castType: 'B', looks: [] },
+    ],
+    scenes: [],
+  },
+  {
+    id: 'proj-demo-3',
+    name: 'Signal Lost',
+    description: 'A sci-fi thriller about a deep space crew who discovers an impossible transmission',
+    projectType: 'film',
+    episodes: [],
+    teamMembers: [
+      { id: 'tm-sl-1', name: 'Jordan Park', role: 'Director' },
+      { id: 'tm-sl-2', name: 'Amira Hassan', role: 'Costume Designer' },
+      { id: 'tm-sl-3', name: 'Viktor Novak', role: 'DOP' },
+    ],
+    characters: [
+      { id: 'char-sl-1', name: 'Commander Reyes', gender: 'Female', castType: 'A', looks: [] },
+      { id: 'char-sl-2', name: 'Dr. Okonkwo', gender: 'Male', castType: 'A', looks: [] },
+      { id: 'char-sl-3', name: 'Pilot Zhao', gender: 'Female', castType: 'B', looks: [] },
+    ],
+    scenes: [],
+  },
+  {
+    id: 'proj-demo-4',
+    name: 'Flat 4B',
+    description: 'A workplace comedy set in a chaotic London advertising agency',
+    projectType: 'series',
+    episodes: [
+      { id: 'ep-fb-1', episodeNumber: 1, title: 'The Pitch' },
+      { id: 'ep-fb-2', episodeNumber: 2, title: 'Going Viral' },
+      { id: 'ep-fb-3', episodeNumber: 3, title: 'Client Dinner' },
+      { id: 'ep-fb-4', episodeNumber: 4, title: 'The Rebrand' },
+      { id: 'ep-fb-5', episodeNumber: 5, title: 'Awards Night' },
+      { id: 'ep-fb-6', episodeNumber: 6, title: 'Series Wrap' },
+    ],
+    teamMembers: [
+      { id: 'tm-fb-1', name: 'Chloe Barnes', role: 'Director' },
+      { id: 'tm-fb-2', name: 'Raj Mehta', role: 'Costume Designer' },
+      { id: 'tm-fb-3', name: 'Dani Kowalski', role: 'Producer' },
+      { id: 'tm-fb-4', name: 'Finn MacAllister', role: '1st AD' },
+      { id: 'tm-fb-5', name: 'Nkechi Eze', role: 'Makeup Artist' },
+      { id: 'tm-fb-6', name: 'Tom Hartley', role: 'DOP' },
+    ],
+    characters: [
+      { id: 'char-fb-1', name: 'Bea Lawson', gender: 'Female', castType: 'A', looks: [] },
+      { id: 'char-fb-2', name: 'Marcus Webb', gender: 'Male', castType: 'A', looks: [] },
+      { id: 'char-fb-3', name: 'Suki Patel', gender: 'Female', castType: 'A', looks: [] },
+      { id: 'char-fb-4', name: 'Dave', gender: 'Male', castType: 'B', looks: [] },
+      { id: 'char-fb-5', name: 'Janet from HR', gender: 'Female', castType: 'B', looks: [] },
+      { id: 'char-fb-6', name: 'The Intern', gender: 'Non-binary', castType: 'C', looks: [] },
+      { id: 'char-fb-7', name: 'Phil the Boss', gender: 'Male', castType: 'B', looks: [] },
+    ],
+    scenes: [],
+  },
+];

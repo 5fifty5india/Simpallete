@@ -22,10 +22,26 @@ export interface Scene {
   sceneNumber: string;
   scriptLocation: string;
   timeDay: string;
-  shootDay: string;
+  shootDay: number | null;
   description: string;
   locationImage?: string;
   characters: SceneCharacter[];
+  episodeId?: string;
+  presenterNotes?: string;
+}
+
+export interface Episode {
+  id: string;
+  episodeNumber: number;
+  title?: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  email?: string;
+  avatar?: string;
 }
 
 export interface Project {
@@ -33,6 +49,8 @@ export interface Project {
   name: string;
   description?: string;
   projectType: 'film' | 'series';
+  episodes: Episode[];
+  teamMembers: TeamMember[];
   characters: Character[];
   scenes: Scene[];
 }

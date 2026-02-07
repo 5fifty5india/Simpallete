@@ -14,7 +14,7 @@ function createEmptyScene(sceneNumber: string): Scene {
     sceneNumber,
     scriptLocation: '',
     timeDay: '',
-    shootDay: '',
+    shootDay: null,
     description: '',
     locationImage: undefined,
     characters: [],

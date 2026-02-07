@@ -9,9 +9,10 @@ interface ModalProps {
   title: string;
   children: ReactNode;
   footer?: ReactNode;
+  size?: 'default' | 'lg';
 }
 
-export default function Modal({ isOpen, onClose, title, children, footer }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, footer, size = 'default' }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function Modal({ isOpen, onClose, title, children, footer }: Moda
       onClick={handleOverlayClick}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
     >
-      <div className="bg-neutral-900 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col border border-white/10">
+      <div className={`bg-neutral-900 rounded-xl shadow-2xl w-full ${size === 'lg' ? 'max-w-2xl' : 'max-w-lg'} max-h-[90vh] flex flex-col border border-white/10`}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <h2 className="text-xl font-semibold text-white">{title}</h2>
