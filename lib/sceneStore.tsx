@@ -53,7 +53,7 @@ interface SceneContextType {
 const SceneContext = createContext<SceneContextType | null>(null);
 
 export function SceneProvider({ children }: { children: ReactNode }) {
-  const [scenes, setScenes] = useState<Scene[]>([createEmptyScene('1')]);
+  const [scenes, setScenes] = useState<Scene[]>(mockScenes);
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
   const [allCharacters] = useState<Character[]>(mockCharacters);
 
