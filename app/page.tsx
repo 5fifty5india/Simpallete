@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/appStore';
-import ProjectCard from '@/components/dashboard/ProjectCard';
+import ProjectCardStack from '@/components/dashboard/ProjectCardStack';
 import NewProjectModal from '@/components/dashboard/NewProjectModal';
 import Button from '@/components/ui/Button';
 
@@ -54,21 +54,16 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      {/* Project Grid */}
+      {/* Project Card Stack */}
       {projects.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-neutral-500 text-sm">No projects yet. Create your first one.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onClick={() => handleSelectProject(project.id)}
-            />
-          ))}
-        </div>
+        <ProjectCardStack
+          projects={projects}
+          onSelectProject={handleSelectProject}
+        />
       )}
 
       {/* New Project Modal */}
